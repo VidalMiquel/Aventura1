@@ -1,32 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-size_t my_strlen(const char *str);
-int my_strcmp(const char *str1, const char *str2);
-char *my_strcpy(char *dest, const char *src);
-char *my_strncpy(char *dest, const char *src, size_t n);
-char *my_strcat(char *dest, const char *src);
-char *my_strchr(const char *str, int c);
-
-char *punt;
-char *punt2;
-
-
-int main(){
-    char string[20]={"holaaaaaaaaaa\0"};
-    char string2[20]={"elpepe\0"};
-    printf("%s    %s", string, string2);
-    punt = string;
-    punt2 = string2;
-
-
-    my_strcat(punt, punt2);
-    printf("\n%s    %s", string, string2);
-
-    printf("\n%s", my_strchr(punt, 'e'));
-    return 0;
-}
+#include "my_lib.h"
 
 char *my_strchr(const char *str, int c){
     char *ret=NULL;
