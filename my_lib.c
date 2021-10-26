@@ -179,24 +179,25 @@ int my_stack_len(struct my_stack *stack){
 
 int my_stack_purge(struct my_stack *stack){
     int liberados = 0;
-    struct my_stack_node *node;
-     printf("Liberados de moment: %d \n", liberados);
-    while (stack->top)
+    struct my_stack_node *aux;
+    printf("Liberados de moment: %d \n", liberados);
+    aux = stack->top;
+    while (aux)
     {
-        node = stack->top;
-        liberados += (sizeof(node));
-        printf("Libeeramos data: %d \n", liberados);
-        liberados += sizeof(*node);
+        liberados+= stack->size;
+        printf("Liberamos data: %d \n", liberados);
+        free(aux->data);
+        liberados += sizeof(*aux);
         printf("Libeeramos nodo: %d \n", liberados);
-        free(data);
-        free(node);
-        stack->top = stack->top->next;  
+        stack->top = stack->top->next; 
+        free(aux); 
+        aux = stack->top;
+    
     }
     printf("Sortim while \n");
     liberados += sizeof(*stack);
     printf("Libeeramos pila: %d \n", liberados);
     free(stack);
-    
     return liberados;
     
 
