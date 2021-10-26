@@ -98,21 +98,107 @@ int my_strcmp(const char *str1, const char *str2)
 
 //Funció que copia n caràcters de src a la memòria apuntada per dest.
 char *my_strncpy(char *dest, const char *src, size_t n)
-{   
+{
     //Obtenim la longitud de src.
     size_t longitud = my_strlen(src);
     //comprovació cas 1.
-    if(longitud < n){
-        for(int i = 0; i < longitud; i++){
+    if (longitud < n)
+    {
+        for (int i = 0; i < longitud; i++)
+        {
             dest[i] = src[i];
         }
-    }else{
+    }
+    else
+    {
         //Cas2.
-        for(int i = 0; i< n; i++){
+        for (int i = 0; i < n; i++)
+        {
             dest[i] = src[i];
         }
     }
     //Retornam el punter que conté el resultat.
     return dest;
+}
+
+struct my_stack *my_stack_init(int size)
+{
+    struct my_stack *pila;
+    pila = malloc(sizeof(struct my_stack));
+    pila->top= NULL;
+    pila->size = size;
+    printf("Size %d \n", pila->size);
+    printf("Top: %s \n", pila->top);
+    return pila;
+}
+
+int my_stack_push(struct my_stack *stack, void *data)
+{
+    struct my_stack_node *nuevoNodo;
+    nuevoNodo = malloc(sizeof(struct my_stack_node));
+    if (stack && stack->size > 0)
+    {
+        nuevoNodo->data = data;
+        nuevoNodo->next = stack->top;
+        stack->top = nuevoNodo;
+        return 0;
+    }
+
+    return ERROR;
+}
+
+void *my_stack_pop(struct my_stack *stack)
+{
+    struct my_stack_node *temporal;
+    temporal = stack->top;
+    void *data;
+    if (stack->top)
+    {
+        data = stack->top->data;
+        stack->top = stack->top->next;
+        free(temporal);
+        return data;
+    }
+
+    return NULL;
+}
+
+int my_stack_len(struct my_stack *stack){
+    int elements = 0;
+    struct my_stack_node *aux;
+    aux = stack->top;
+    while (aux)
+    {
+        elements++;
+        aux = aux->next;
+        
+    }
+    return elements;
+    
+}
+
+int my_stack_purge(struct my_stack *stack){
+    int liberados = 0;
+    struct my_stack_node *node;
+     printf("Liberados de moment: %d \n", liberados);
+    while (stack->top)
+    {
+        node = stack->top;
+        liberados += (sizeof(node));
+        printf("Libeeramos data: %d \n", liberados);
+        liberados += sizeof(*node);
+        printf("Libeeramos nodo: %d \n", liberados);
+        free(data);
+        free(node);
+        stack->top = stack->top->next;  
+    }
+    printf("Sortim while \n");
+    liberados += sizeof(*stack);
+    printf("Libeeramos pila: %d \n", liberados);
+    free(stack);
+    
+    return liberados;
+    
+
 }
 
