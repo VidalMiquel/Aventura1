@@ -121,49 +121,67 @@ char *my_strncpy(char *dest, const char *src, size_t n)
     return dest;
 }
 
+//funció ecarregada d'inicilaitzar la pila.
 struct my_stack *my_stack_init(int size)
 {
+    //Declaram una varibale punter de tipus struct my_stack.
     struct my_stack *pila;
+    //Reservam espai de memoria i li assigna al punter.
     pila = malloc(sizeof(struct my_stack));
-    pila->top= NULL;
+    //Inicialitzam es valors.
+    pila->top = NULL;
     pila->size = size;
-    printf("Size %d \n", pila->size);
-    printf("Top: %s \n", pila->top);
+    //Retornm el punter a la pila incialitzada.
     return pila;
 }
 
+//Funció que introdueix un node dins la pila.
 int my_stack_push(struct my_stack *stack, void *data)
 {
+    //Declaram una variable punter de tipus my_stack_node.
     struct my_stack_node *nuevoNodo;
+    //Reservam espai de memoria i li assigna al punter.
     nuevoNodo = malloc(sizeof(struct my_stack_node));
+    //comprovam si la pila ha estat inicialitzada correctament.
     if (stack && stack->size > 0)
     {
         nuevoNodo->data = data;
+        //L'element introduit apunta al mateix lloc que top.
         nuevoNodo->next = stack->top;
+        //Top apunta al l'element introduït.
         stack->top = nuevoNodo;
         return 0;
     }
-
+    //Retornam error si la pila no ha estat ben inicialitzada.
     return ERROR;
 }
 
+//Funció que treu el primer element de la pila.
 void *my_stack_pop(struct my_stack *stack)
 {
+    //Declaram una varibale punter de tipus my_stack_node.
     struct my_stack_node *temporal;
-    temporal = stack->top;
+    //Declaram una varible punter void.
     void *data;
+    //Apunta al mateix lloc que top(primer element de la pila).
+    temporal = stack->top;
+    //Si la pila no està buida.
     if (stack->top)
     {
+        //Recuperam data.
         data = stack->top->data;
+        //Top apunta allà on apunta l'element a extreure.
         stack->top = stack->top->next;
+        //alliberam temporal (eliminam el primer element de la pila).
         free(temporal);
+        //retornm data (infomració associada a l'element eliminat).
         return data;
     }
-
     return NULL;
 }
 
-int my_stack_len(struct my_stack *stack){
+int my_stack_len(struct my_stack *stack)
+{
     int elements = 0;
     struct my_stack_node *aux;
     aux = stack->top;
@@ -171,35 +189,36 @@ int my_stack_len(struct my_stack *stack){
     {
         elements++;
         aux = aux->next;
-        
     }
     return elements;
-    
 }
 
-int my_stack_purge(struct my_stack *stack){
+//Funció que allibera tot l'espai reservat anteriorment (pila, nodes i data).
+int my_stack_purge(struct my_stack *stack)
+{
+    //declaració i inicialització de  la variable que emmagatzemarà els bytes alliberats.
     int liberados = 0;
+    //DEclaració d'una varibale punter de tipus my_stack_node.
     struct my_stack_node *aux;
-    printf("Liberados de moment: %d \n", liberados);
+    //Aux apunta, on apunta top.
     aux = stack->top;
+    //Mentres quedin elements dins la pila.
     while (aux)
     {
-        liberados+= stack->size;
-        printf("Liberamos data: %d \n", liberados);
+        liberados += stack->size;
+        //Alliberam data.
         free(aux->data);
         liberados += sizeof(*aux);
-        printf("Libeeramos nodo: %d \n", liberados);
-        stack->top = stack->top->next; 
-        free(aux); 
+        //Top apunta al següent element.
+        stack->top = stack->top->next;
+        //Alliberam aux (node)
+        free(aux);
+        //Aux apunta, on apunta top.
         aux = stack->top;
-    
     }
-    printf("Sortim while \n");
     liberados += sizeof(*stack);
-    printf("Libeeramos pila: %d \n", liberados);
+    //Alliberam la pila.
     free(stack);
+    //Retornam els bytes alliberats.
     return liberados;
-    
-
 }
-
