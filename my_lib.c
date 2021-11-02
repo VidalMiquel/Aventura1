@@ -16,18 +16,18 @@ int my_stack_purge(struct my_stack *stack)
         {
 
             //Alliberam i sumam el que ocupa el camp data
-            ret += sizeof(aux->data);
+            ret += stack->size;
             free(aux->data);
             // Top ara apunta al seguent node
             stack->top = aux->next;
             // Alliberam al node amb el que hem treballat
-            ret += sizeof(aux);
+            ret += sizeof(*aux);
             free(aux);
             // Agafam top com el seguent node (l'hem canviat abans)
             aux = stack->top;
         }
         // Alliberam la pila
-        ret+=sizeof(stack);
+        ret+=sizeof(*stack);
         free(stack);
 
         // Retornam la suma de tots els bytes
