@@ -166,7 +166,7 @@ void *my_stack_pop(struct my_stack *stack)
     //Apunta al mateix lloc que top(primer element de la pila).
     temporal = stack->top;
     //Si la pila no està buida.
-    if (stack->top)
+    if (stack && stack->top)
     {
         //Recuperam data.
         data = stack->top->data;
@@ -185,12 +185,17 @@ int my_stack_len(struct my_stack *stack)
     int elements = 0;
     struct my_stack_node *aux;
     aux = stack->top;
-    while (aux)
+    if (stack)
     {
-        elements++;
-        aux = aux->next;
+        while (aux)
+        {
+            elements++;
+            aux = aux->next;
+        }
+        return elements;
     }
-    return elements;
+
+    return ERROR;
 }
 
 //Funció que allibera tot l'espai reservat anteriorment (pila, nodes i data).
@@ -203,22 +208,26 @@ int my_stack_purge(struct my_stack *stack)
     //Aux apunta, on apunta top.
     aux = stack->top;
     //Mentres quedin elements dins la pila.
-    while (aux)
+    if (stack)
     {
-        liberados += stack->size;
-        //Alliberam data.
-        free(aux->data);
-        liberados += sizeof(*aux);
-        //Top apunta al següent element.
-        stack->top = stack->top->next;
-        //Alliberam aux (node)
-        free(aux);
-        //Aux apunta, on apunta top.
-        aux = stack->top;
+        while (aux)
+        {
+            liberados += stack->size;
+            //Alliberam data.
+            free(aux->data);
+            liberados += sizeof(*aux);
+            //Top apunta al següent element.
+            stack->top = stack->top->next;
+            //Alliberam aux (node)
+            free(aux);
+            //Aux apunta, on apunta top.
+            aux = stack->top;
+        }
+        liberados += sizeof(*stack);
+        //Alliberam la pila.
+        free(stack);
+        //Retornam els bytes alliberats.
+        return liberados;
     }
-    liberados += sizeof(*stack);
-    //Alliberam la pila.
-    free(stack);
-    //Retornam els bytes alliberats.
-    return liberados;
+    return ERROR;
 }
