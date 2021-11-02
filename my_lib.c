@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "my_lib.h"
 
 int my_stack_purge(struct my_stack *stack)
