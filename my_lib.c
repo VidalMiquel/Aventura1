@@ -231,3 +231,117 @@ int my_stack_purge(struct my_stack *stack)
     }
     return ERROR;
 }
+
+//funció que llegeix un fitxer passat per paràmetre.
+struct my_stack *my_stack_read(char *filename)
+{
+    //Declaracions de les variables.
+    int fd, size;
+    struct my_stack *pila;
+    void *data;
+    //Obrim el fitxer.
+    fd = open(filename, O_RDONLY);
+    //Control d'errors a l'obertura del fitxer.
+    if (fd == -1)
+    {
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return NULL;
+    }
+    //Obtenim el tamany de les dades.
+    if ((read(fd, &size, sizeof(int))) == -1)
+    {
+        //Control d'errors.
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return NULL;
+    }
+    //Inicialitzam la pila auxiliar.
+    pila = my_stack_init(size);
+    data = malloc(size);
+    //Llegim fins a EOF.
+    while (read(fd, data, size) > 0)
+    {
+        //Introduim un nou node amb les dades obtingudes de la lectura.
+        my_stack_push(pila, data);
+        data = malloc(size);
+    }
+    //lliberam memòria associat a data.
+    free(data);
+    //Tancam el fitxer.
+    if (close(fd) == -1)
+    {
+        //Control d'errors al tancar fitxer.
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return NULL;
+    }
+    //Retornam pila.
+    return pila;
+}
+
+//Funció encarregada de copiar la pila original.
+void copiarPila(struct my_stack *stack, struct my_stack *copiar)
+{
+    //Declaració de les variables.
+    struct my_stack_node *node;
+    node = stack->top;
+    //Mentre hi hagi elements dins la pila original, copiam.
+    while (node)
+    {
+        //Introduim un nou node a la pila auxiliar.
+        my_stack_push(copiar, node->data);
+        node = node->next;
+    }
+    //Lliberam la memoria reservada anteriorment.
+    free(node);
+}
+
+//funció encarregada d'escriure el contingut de la pila original dins el fitxer passat per paràmetre.
+int my_stack_write(struct my_stack *stack, char *filename)
+{
+    //Declaracions de variables.
+    int fd, elementsInserts;
+    struct my_stack *copiar;
+    void *data;
+    int size = stack->size;
+    //Obrim el fitxer.
+    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (fd == -1)
+    {
+        //Control d'errors a l'oberutra del fitxer.
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return ERROR;
+    }
+    //Escrivim la mida de les dades
+    if (write(fd, &(stack->size), sizeof(int)) == -1)
+    {
+        //Control d'errors a l'escritura.
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return ERROR;
+    };
+    elementsInserts = 0;
+    //Inicialitzam la pila auxiliar.
+    copiar = my_stack_init(stack->size);
+    //Copiam la pila original dins la auxiliar.
+    copiarPila(stack, copiar);
+    while (copiar->top)
+    {
+        data = my_stack_pop(copiar);
+        //Escrivim cada data dins el fitxer.
+        if (write(fd, data, size) == -1)
+        {
+            //Control d'erros en la escritura.
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            return ERROR;
+        }
+        //Incrementam el nombre d'elements escrits.
+        elementsInserts++;
+    }
+    //Tancam el fitxer.
+    if (close(fd) == -1)
+    {
+        //Control d'erros al tancar fitxer.
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return ERROR;
+    }
+    //Retorn elements escrits.
+    return elementsInserts;
+}

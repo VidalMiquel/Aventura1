@@ -9,6 +9,7 @@ manejo de una pila */
 #include <sys/stat.h>  /* Permisos función open() */
 #include <sys/types.h> /* Definiciones de tipos de datos como size_t*/
 #include <unistd.h>    /* Funciones read(), write(), close()*/
+#include <errno.h>
 
 #define ERROR -1
 

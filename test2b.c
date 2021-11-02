@@ -80,6 +80,7 @@ int main() {
     puts("Writting the smaller stack (s1), it must truncate the file.");
     // Now the smaller stack, it must truncate the file
     if (my_stack_write(s1, "/tmp/my_stack.data") != len1) {
+    	 printf("len1: %d", len1);
         puts("Error in my_stack_write (s1)");
         exit(EXIT_FAILURE);
     }
