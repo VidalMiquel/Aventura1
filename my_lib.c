@@ -101,23 +101,19 @@ char *my_strncpy(char *dest, const char *src, size_t n)
 {
     //Obtenim la longitud de src.
     size_t longitud = my_strlen(src);
-    //comprovació cas 1.
-    if (longitud < n)
+    //Copiam els n caràcters de src a dest.
+    for (int i = 0; i < n; i++)
     {
-        for (int i = 0; i < longitud; i++)
-        {
-            dest[i] = src[i];
+        dest[i] = src[i];
+    }
+    //Cas en que els caràcters a copiar son mes que la longitud de src.
+    if(longitud < n){
+        size_t longitud_dest = my_strlen(dest);
+        for (int j = longitud; j < longitud_dest; j++){
+            dest[j] = '\0';
         }
     }
-    else
-    {
-        //Cas2.
-        for (int i = 0; i < n; i++)
-        {
-            dest[i] = src[i];
-        }
-    }
-    //Retornam el punter que conté el resultat.
+    //Retornam dest.
     return dest;
 }
 
@@ -177,24 +173,33 @@ void *my_stack_pop(struct my_stack *stack)
         //retornm data (infomració associada a l'element eliminat).
         return data;
     }
+    //Cas no existeix node superior.
     return NULL;
 }
 
+//Funció que determina la quantitat d'elements que té la pila.
 int my_stack_len(struct my_stack *stack)
 {
+    //Declaració i inicialització de la variable de retorn.
     int elements = 0;
+    //Declaració d'una varibale de tipus my_stack_node auxiliar.
     struct my_stack_node *aux;
     aux = stack->top;
+    //Comprovam l'existència de la pila.
     if (stack)
-    {
+    {   
+        //Mentres hi hagi elements.
         while (aux)
         {
+            //Incrementam el nombre d'elements.
             elements++;
+            //apuntam al següent element.
             aux = aux->next;
         }
+        //Retornam elements presents dins la pila.
         return elements;
     }
-
+    //Cas error.
     return ERROR;
 }
 
@@ -207,9 +212,10 @@ int my_stack_purge(struct my_stack *stack)
     struct my_stack_node *aux;
     //Aux apunta, on apunta top.
     aux = stack->top;
-    //Mentres quedin elements dins la pila.
+    //Comprovam l'existència de la pila.
     if (stack)
     {
+        //Mentres quedin elements dins la pila.
         while (aux)
         {
             liberados += stack->size;
@@ -229,6 +235,7 @@ int my_stack_purge(struct my_stack *stack)
         //Retornam els bytes alliberats.
         return liberados;
     }
+    //Cas error.
     return ERROR;
 }
 
