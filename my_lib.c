@@ -1,5 +1,73 @@
 #include "my_lib.h"
 
+int my_stack_write(struct my_stack *stack, char *filename)
+{
+    if (stack)
+    {
+        // Variable de retorn que comptarà els elements inserits
+        int retorn = 0;
+        // Cream una pila auxiliar per poder guardar les coses en l'ordre que toca
+        struct my_stack *aux = my_stack_init(stack->size);
+        aux->size = stack->size;
+        // Buidam la pila original mentre que anam emplenant l'auxiliar (aquest procés es desfarà al final de la funció)
+        while (stack->top)
+        {
+            my_stack_push(my_stack_pop(stack), aux);
+        }
+
+        // Variable que usarem per poder interactuar amb el fitxer
+        int fileDes;
+        // Obrim/Cream el fitxer
+        fileDes = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+
+        if (fileDes == -1)
+        {
+            // Si no mos ha tornat un file descriptor valid ho mostram
+            printf("Error a l'hora d'obrir el fitxer");
+            return -1;
+        }
+        //Escrivim size i si dona error (ha escrivit 0bytes), aquesta sentència serà vertadera, per tant ho notificam
+        if (write(fileDes, stack->size, sizeof(int)))
+        {
+            //Control d'errors a l'escritura.
+            printf("error a l'escriptura");
+            return -1;
+        };
+
+        // Escrivim els nodes
+        void *data;
+        while (aux->top)
+        {
+            // Mos guardam data per llavors tornar a ficar-ho dins la pila original
+            data = my_stack_pop(aux);
+            // N'escrivim un. Si dona error (ha escrivit 0bytes), aquesta sentència serà vertadera, per tant ho notificam
+            if (write(fileDes, data, aux->size))
+            {
+                printf("error a l'escriptura");
+            }
+            // Tornam a emplenar la pila original
+            my_stack_push(stack, data);
+            // Comptabilitzam l'escriptura
+            retorn++;
+        }
+        // Ja no necessitam data per tant l'alliberam
+        free(data);
+
+        // Tancam el fintxer
+        if (close(fileDes) == -1)
+        {
+            //si no tanca ho notificam
+            printf("error a l'hora de tancar el fitxer");
+            return -1;
+        }
+        //Retorn elements escrits.
+
+        return retorn;
+    }
+
+    return -1;
+}
+
 int my_stack_purge(struct my_stack *stack)
 {
     // Total de bytes alliberats
@@ -24,7 +92,7 @@ int my_stack_purge(struct my_stack *stack)
             aux = stack->top;
         }
         // Alliberam la pila
-        ret+=sizeof(*stack);
+        ret += sizeof(*stack);
         free(stack);
 
         // Retornam la suma de tots els bytes
