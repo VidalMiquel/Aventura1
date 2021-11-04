@@ -1,5 +1,53 @@
 #include "my_lib.h"
 
+struct my_stack *my_stack_read (char *filename){
+    if (filename)
+    {
+       int fileDes=open(filename, O_RDONLY);
+
+        if(fileDes){
+            void *buffer;
+
+            struct my_stack *retorn=my_stack_init(read(fileDes,buffer,sizeof(int)));
+            if(retorn==-1||!retorn){
+                printf("error de lectura");
+            }
+        
+            
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+    }
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int my_stack_write(struct my_stack *stack, char *filename)
 {
     if (stack)
