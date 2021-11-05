@@ -56,7 +56,7 @@ struct my_stack *my_stack_read(char *filename)
 
 int my_stack_write(struct my_stack *stack, char *filename)
 {
-    
+
     if (stack)
     {
         // Variable de retorn que comptarà els elements inserits
@@ -79,7 +79,7 @@ int my_stack_write(struct my_stack *stack, char *filename)
             return -1;
         }
         //Escrivim size i si dona error (ha escrivit 0bytes), aquesta sentència serà vertadera, per tant ho notificam
-        if (write(fileDes, &(stack->size), sizeof(int))==-1)
+        if (write(fileDes, &(stack->size), sizeof(int)) == -1)
         {
             //Control d'errors a l'escritura.
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
@@ -89,11 +89,12 @@ int my_stack_write(struct my_stack *stack, char *filename)
         void *data;
         while (aux->top)
         {
+            printf("A");
             // Mos guardam data per llavors tornar a ficar-ho dins la pila original
-            data=malloc(sizeof(aux->size));
+            data = malloc(sizeof(aux->size));
             data = my_stack_pop(aux);
             // N'escrivim un. Si dona error (ha escrivit 0bytes), aquesta sentència serà vertadera, per tant ho notificam
-            if (write(fileDes, data, aux->size)==-1)
+            if (write(fileDes, data, aux->size) == -1)
             {
                 fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
                 return -1;
@@ -107,7 +108,7 @@ int my_stack_write(struct my_stack *stack, char *filename)
         free(data);
 
         // Tancam el fintxer
-        if (close(fileDes)==-1)
+        if (close(fileDes) == -1)
         {
             //si no tanca ho notificam
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
