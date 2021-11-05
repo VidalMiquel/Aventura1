@@ -56,6 +56,7 @@ struct my_stack *my_stack_read(char *filename)
 
 int my_stack_write(struct my_stack *stack, char *filename)
 {
+    
     if (stack)
     {
         // Variable de retorn que comptarà els elements inserits
@@ -67,12 +68,10 @@ int my_stack_write(struct my_stack *stack, char *filename)
         {
             my_stack_push(my_stack_pop(stack), aux);
         }
-
         // Variable que usarem per poder interactuar amb el fitxer
         int fileDes;
         // Obrim/Cream el fitxer
         fileDes = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-
         if (fileDes == -1)
         {
             // Si no mos ha tornat un file descriptor valid ho mostram
@@ -86,18 +85,18 @@ int my_stack_write(struct my_stack *stack, char *filename)
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
             return -1;
         };
-
         // Escrivim els nodes
         void *data;
         while (aux->top)
         {
             // Mos guardam data per llavors tornar a ficar-ho dins la pila original
-            data=malloc(sizeof(stack->size));
+            data=malloc(sizeof(aux->size));
             data = my_stack_pop(aux);
             // N'escrivim un. Si dona error (ha escrivit 0bytes), aquesta sentència serà vertadera, per tant ho notificam
             if (write(fileDes, data, aux->size)==-1)
             {
                 fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+                return -1;
             }
             // Tornam a emplenar la pila original
             my_stack_push(stack, data);
