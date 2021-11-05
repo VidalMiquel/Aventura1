@@ -1,52 +1,58 @@
 #include "my_lib.h"
+#include <errno.h>
 
-struct my_stack *my_stack_read (char *filename){
+struct my_stack *my_stack_read(char *filename)
+{
     if (filename)
     {
-       int fileDes=open(filename, O_RDONLY);
+        int fileDes = open(filename, O_RDONLY);
 
-        if(fileDes){
-            void *buffer;
-
-            struct my_stack *retorn=my_stack_init(read(fileDes,buffer,sizeof(int)));
-            if(retorn==-1||!retorn){
-                printf("error de lectura");
+        if (fileDes > 1)
+        {
+            // Declaram size (ara l'emprarem fer inicialitzar la pila)
+            int size;
+            // iniciam la pila llegint els 4 primers bytes que corresponen al size de la pila que guardarem al fitxer
+            struct my_stack *retorn;
+            if (read(fileDes, &size, sizeof(int)) < 1)
+            {
+                fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+                return NULL;
             }
-        
-            
+            // inicialitzam la pila
+            retorn = my_stack_init(size);
+            // Punter tipus void que apuntarà al que anirem llegint del fitxer.
+            void *data;
+            // Declaram el seu espai de memòria reservada amb l'atribut size de la pila
+            data = malloc(sizeof(retorn->size));
+            // Anam fent push a la pila metre que hi hagi coses per llegir
+            while (read(fileDes, data, retorn->size) > 0)
+            {
+                my_stack_push(retorn, data);
+                // Reservam nou espai per a la seguent iteració
+                data = malloc(sizeof(retorn->size));
+            }
+            // Ja no necessitam data, per tant podem llevar l'espai de memoria assignat al PUNTER data
+            free(data);
 
-
+            if (close(fileDes) < 0)
+            {
+                fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+                return NULL;
+            }
+            return retorn;
         }
-
-
-
-
-
-
-
-
-
-
+        else
+        {
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            return NULL;
+        }
     }
-    
+    else
+    {
+        printf("nom de fitxer no valid");
+        return NULL;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int my_stack_write(struct my_stack *stack, char *filename)
 {
@@ -56,7 +62,6 @@ int my_stack_write(struct my_stack *stack, char *filename)
         int retorn = 0;
         // Cream una pila auxiliar per poder guardar les coses en l'ordre que toca
         struct my_stack *aux = my_stack_init(stack->size);
-        aux->size = stack->size;
         // Buidam la pila original mentre que anam emplenant l'auxiliar (aquest procés es desfarà al final de la funció)
         while (stack->top)
         {
@@ -71,14 +76,14 @@ int my_stack_write(struct my_stack *stack, char *filename)
         if (fileDes == -1)
         {
             // Si no mos ha tornat un file descriptor valid ho mostram
-            printf("Error a l'hora d'obrir el fitxer");
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
             return -1;
         }
         //Escrivim size i si dona error (ha escrivit 0bytes), aquesta sentència serà vertadera, per tant ho notificam
-        if (write(fileDes, stack->size, sizeof(int)))
+        if (write(fileDes, &(stack->size), sizeof(int))==-1)
         {
             //Control d'errors a l'escritura.
-            printf("error a l'escriptura");
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
             return -1;
         };
 
@@ -87,11 +92,12 @@ int my_stack_write(struct my_stack *stack, char *filename)
         while (aux->top)
         {
             // Mos guardam data per llavors tornar a ficar-ho dins la pila original
+            data=malloc(sizeof(stack->size));
             data = my_stack_pop(aux);
             // N'escrivim un. Si dona error (ha escrivit 0bytes), aquesta sentència serà vertadera, per tant ho notificam
-            if (write(fileDes, data, aux->size))
+            if (write(fileDes, data, aux->size)==-1)
             {
-                printf("error a l'escriptura");
+                fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
             }
             // Tornam a emplenar la pila original
             my_stack_push(stack, data);
@@ -102,10 +108,10 @@ int my_stack_write(struct my_stack *stack, char *filename)
         free(data);
 
         // Tancam el fintxer
-        if (close(fileDes) == -1)
+        if (close(fileDes)==-1)
         {
             //si no tanca ho notificam
-            printf("error a l'hora de tancar el fitxer");
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
             return -1;
         }
         //Retorn elements escrits.
@@ -144,8 +150,8 @@ int my_stack_purge(struct my_stack *stack)
         free(stack);
 
         // Retornam la suma de tots els bytes
-        return ret;
     }
+    return ret;
 }
 
 int my_stack_len(struct my_stack *stack)
@@ -225,19 +231,17 @@ struct my_stack *my_stack_init(int size)
 
 char *my_strchr(const char *str, int c)
 {
-    char *ret = NULL;
-
-    // mentre no acabi l'string i metnre que no s'hagi trobat la primera lletra coicident
-    for (int i = 0; str[i] && !ret; i++)
+    // mentre no acabi l'string, segueix comprovant
+    for (int i = 0; str[i]; i++)
     {
         if (str[i] == c)
         {
-            //Assignam punter
-            ret = &str[i];
+            // Retornam el punter si coincideix
+            return (char *)str;
         }
     }
 
-    return ret;
+    return NULL;
 }
 
 char *my_strcat(char *dest, const char *src)
