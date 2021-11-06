@@ -1,3 +1,6 @@
+/*
+AUTORS : Miquel Vidal Cortés , Aina Maria Tur Serrano, Xavier Vives Marcus.
+*/
 #include "my_lib.h"
 
 //Funció que retorna la longutid de la cadena passada per paràmetre.
@@ -27,7 +30,7 @@ char *my_strcpy(char *dest, const char *src)
         dest[i] = src[i];
         i++;
     }
-    //Assifnam al darrer valor de la cadena destí el caràcter '\0'.
+    //Assignam al darrer valor de la cadena destí el caràcter '\0'.
     dest[i] = '\0';
     //Retornam un punter la cadena resultant.
     return dest;
@@ -107,9 +110,11 @@ char *my_strncpy(char *dest, const char *src, size_t n)
         dest[i] = src[i];
     }
     //Cas en que els caràcters a copiar son mes que la longitud de src.
-    if(longitud < n){
+    if (longitud < n)
+    {
         size_t longitud_dest = my_strlen(dest);
-        for (int j = longitud; j < longitud_dest; j++){
+        for (int j = longitud; j < longitud_dest; j++)
+        {
             dest[j] = '\0';
         }
     }
@@ -117,7 +122,7 @@ char *my_strncpy(char *dest, const char *src, size_t n)
     return dest;
 }
 
-//funció ecarregada d'inicilaitzar la pila.
+//Funció ecarregada d'inicilaitzar la pila.
 struct my_stack *my_stack_init(int size)
 {
     //Declaram una varibale punter de tipus struct my_stack.
@@ -149,7 +154,7 @@ int my_stack_push(struct my_stack *stack, void *data)
         return 0;
     }
     //Retornam error si la pila no ha estat ben inicialitzada.
-    return ERROR;
+    return -1;
 }
 
 //Funció que treu el primer element de la pila.
@@ -187,7 +192,7 @@ int my_stack_len(struct my_stack *stack)
     aux = stack->top;
     //Comprovam l'existència de la pila.
     if (stack)
-    {   
+    {
         //Mentres hi hagi elements.
         while (aux)
         {
@@ -200,7 +205,7 @@ int my_stack_len(struct my_stack *stack)
         return elements;
     }
     //Cas error.
-    return ERROR;
+    return -1;
 }
 
 //Funció que allibera tot l'espai reservat anteriorment (pila, nodes i data).
@@ -236,7 +241,7 @@ int my_stack_purge(struct my_stack *stack)
         return liberados;
     }
     //Cas error.
-    return ERROR;
+    return -1;
 }
 
 //funció que llegeix un fitxer passat per paràmetre.
@@ -315,40 +320,44 @@ int my_stack_write(struct my_stack *stack, char *filename)
     {
         //Control d'errors a l'oberutra del fitxer.
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return ERROR;
+        return -1;
     }
-    //Escrivim la mida de les dades
-    if (write(fd, &(stack->size), sizeof(int)) == -1)
+    if (stack)
     {
-        //Control d'errors a l'escritura.
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return ERROR;
-    };
-    elementsInserts = 0;
-    //Inicialitzam la pila auxiliar.
-    copiar = my_stack_init(stack->size);
-    //Copiam la pila original dins la auxiliar.
-    copiarPila(stack, copiar);
-    while (copiar->top)
-    {
-        data = my_stack_pop(copiar);
-        //Escrivim cada data dins el fitxer.
-        if (write(fd, data, size) == -1)
+        //Escrivim la mida de les dades
+        if (write(fd, &(stack->size), sizeof(int)) == -1)
         {
-            //Control d'erros en la escritura.
+            //Control d'errors a l'escritura.
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return ERROR;
+            return -1;
+        };
+        elementsInserts = 0;
+        //Inicialitzam la pila auxiliar.
+        copiar = my_stack_init(stack->size);
+        //Copiam la pila original dins la auxiliar.
+        copiarPila(stack, copiar);
+        while (copiar->top)
+        {
+            data = my_stack_pop(copiar);
+            //Escrivim cada data dins el fitxer.
+            if (write(fd, data, size) == -1)
+            {
+                //Control d'erros en la escritura.
+                fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+                return -1;
+            }
+            //Incrementam el nombre d'elements escrits.
+            elementsInserts++;
         }
-        //Incrementam el nombre d'elements escrits.
-        elementsInserts++;
+        //Tancam el fitxer.
+        if (close(fd) == -1)
+        {
+            //Control d'erros al tancar fitxer.
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            return -1;
+        }
+        //Retorn elements escrits.
+        return elementsInserts;
     }
-    //Tancam el fitxer.
-    if (close(fd) == -1)
-    {
-        //Control d'erros al tancar fitxer.
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return ERROR;
-    }
-    //Retorn elements escrits.
-    return elementsInserts;
+    return -1;
 }
